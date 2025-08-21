@@ -1,133 +1,76 @@
 # Instavid Shoppable Videos for Magento 2
 
-Professional video commerce extension for Magento 2. Transform your store with interactive, shoppable video experiences that drive conversions and increase sales.
+The most powerful and easy-to-use shoppable video extension for Magento 2. Transform your store with interactive video carousels that drive engagement and sales.
 
-## 🚀 Features
+## ✨ Features
 
-- **Video Carousel Widgets** - Insert interactive video carousels anywhere on your site
-- **Product Integration** - Seamlessly connect videos with your product catalog
-- **Mobile Responsive** - Optimized for all devices and screen sizes
-- **SEO Optimized** - Built with search engine optimization in mind
-- **Easy Configuration** - Simple admin interface for managing video content
-- **Performance Focused** - Lightweight and fast loading
-- **Cart Integration** - Direct product addition from video interactions
+- **🎯 Easy Widget Integration** - Drag & drop widgets anywhere on your site
+- **📱 Responsive Design** - Works perfectly on all devices
+- **🔄 Page-Type Aware** - Automatically adapts to product, category, and homepage
+- **⚡ Lightweight** - Minimal impact on page load times
+- **🔧 Simple Configuration** - Just name your carousel and you're ready to go
+- **🎬 External Video System** - Integrates with your existing video infrastructure
 
-## 📦 Installation
+## 🚀 Quick Start
 
-### ✨ **Standard Composer Installation**
-
-```bash
-# Add our repository to your composer.json
-composer config repositories.instasell vcs https://github.com/InstaSell/Magento-Extension
-
-# Install the extension
-composer require instasell/magento-extension
-```
-
-### 🔧 **Enable Module**
+### 1. Install the Extension
 
 ```bash
+# Upload the extension to your Magento store
+# Extract to app/code/Instavid/ShoppableVideos/
+
+# Enable the module
 php bin/magento module:enable Instavid_ShoppableVideos
+
+# Run setup
 php bin/magento setup:upgrade
+php bin/magento setup:di:compile
+php bin/magento setup:static-content:deploy
 php bin/magento cache:flush
 ```
 
-### Manual Installation
+### 2. Add Widgets to Your Pages
 
-1. Download the extension from GitHub
-2. Extract to `app/code/Instavid/ShoppableVideos/`
-3. Run the setup commands above
-
-## 🎯 Quick Start
-
-### 1. Enable the Module
-```bash
-php bin/magento module:enable Instavid_ShoppableVideos
-php bin/magento setup:upgrade
-php bin/magento cache:flush
-```
-
-### 2. Add Widget to Your Store
-1. Go to **Admin → Content → Widgets**
+1. Go to **Admin Panel** → **Content** → **Widgets**
 2. Click **Add Widget**
 3. Select **Instavid Video Carousel**
-4. Choose your **Layout Update** (e.g., Homepage)
-5. Configure your **Carousel Name**
-6. Save and test!
+4. Choose your **Layout Update** (where to place it)
+5. Enter a **Carousel Name** (e.g., "Homepage Hero", "Category Videos")
+6. Save and enjoy!
 
-### 3. Configure Your Videos
-- Set up your video content in the Instavid dashboard
-- Use the same **Carousel Name** you configured in the widget
-- Your videos will automatically appear on your store
+## 📍 Widget Placement Options
 
-## 🔧 Configuration
+- **CMS Pages** - Add to any static page
+- **Category Pages** - Show category-specific videos
+- **Product Pages** - Display product demonstration videos
+- **Homepage** - Create engaging hero sections
 
-### Widget Parameters
+## ⚙️ Configuration
 
-- **Carousel Name**: Unique identifier for your video carousel (required)
-- **Layout**: Choose where to display the widget
-- **Template**: Select from available display templates
+The widget automatically detects page type and configures itself:
 
-### System Configuration
+- **Product Pages**: Shows product-specific video content
+- **Category Pages**: Displays category-focused videos
+- **Other Pages**: Renders homepage-style carousels
 
-Navigate to **Admin → Stores → Configuration → Instavid → Shoppable Videos** to configure:
+## 🎨 Customization
 
-- API credentials
-- Default video settings
-- Performance options
-- Display preferences
+The extension provides clean, minimal containers that integrate seamlessly with your existing Instavid video system. No complex configuration needed - just name your carousel and let the system handle the rest.
 
-## 📱 Widget Usage
+## 🔒 Compatibility
 
-### Available Widgets
+- **Magento 2.4.x** (2.4.0 and above)
+- **PHP 7.4+**
+- **All themes** (Luma, Blank, custom themes)
 
-- **Instavid Video Carousel**: Main video carousel widget with product integration
-- More widgets coming soon!
+## 📞 Support
 
-### Placement Options
-
-- Homepage
-- Category pages
-- Product pages
-- CMS pages
-- Any custom location
-
-## 🆘 Support
-
-- **Email**: support@instasell.io
-- **Documentation**: [https://docs.instavid.com/magento](https://docs.instavid.com/magento)
-- **Issues**: [GitHub Issues](https://github.com/InstaSell/Magento-Extension/issues)
-- **Website**: [https://instavid.co/](https://instavid.co/)
-
-## 🔄 Updates
-
-Keep your extension up to date
-
-```bash
-# Update the extension
-composer update instasell/magento-extension
-
-# Refresh Magento
-php bin/magento setup:upgrade
-php bin/magento cache:flush
-```
-
-## 📋 Requirements
-
-- **PHP**: 7.4 or higher
-- **Magento**: 2.4.3 or higher
-- **Framework**: 103.0.0 or higher
+For technical support or customization requests, contact our development team.
 
 ## 📄 License
 
-This extension is licensed under the MIT License. See the LICENSE file for details.
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+This extension is proprietary software. All rights reserved.
 
 ---
 
-**Transform your Magento store with the power of shoppable videos!** 🎥✨
-
-*Built with ❤️ by the InstaSell Team*
+**Instavid Shoppable Videos** - Making video commerce simple and effective. 

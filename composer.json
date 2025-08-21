@@ -2,7 +2,7 @@
     "name": "instasell/magento-extension",
     "description": "Professional shoppable video extension for Magento 2",
     "type": "magento2-module",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "license": "MIT",
     "keywords": [
         "magento2",
@@ -28,16 +28,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Instavid\\ShoppableVideos\\": "src/Instavid/ShoppableVideos/"
+            "Instavid\\ShoppableVideos\\": ""
         }
-    },
-    "extra": {
-        "map": [
-            [
-                "src/Instavid/ShoppableVideos",
-                "app/code/Instavid/ShoppableVideos"
-            ]
-        ]
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
