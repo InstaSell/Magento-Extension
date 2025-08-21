@@ -2,19 +2,29 @@
 
 Professional video commerce extension for Magento 2. Transform your store with interactive, shoppable video experiences that drive conversions and increase sales.
 
-## Installation
+## 🚀 Features
 
-### Standard Composer Installation
+- **Video Carousel Widgets** - Insert interactive video carousels anywhere on your site
+- **Product Integration** - Seamlessly connect videos with your product catalog
+- **Mobile Responsive** - Optimized for all devices and screen sizes
+- **SEO Optimized** - Built with search engine optimization in mind
+- **Easy Configuration** - Simple admin interface for managing video content
+- **Performance Focused** - Lightweight and fast loading
+- **Cart Integration** - Direct product addition from video interactions
+
+## 📦 Installation
+
+### ✨ **Standard Composer Installation**
 
 ```bash
 # Add our repository to your composer.json
-composer config repositories.instavid vcs https://github.com/instavid/shoppable-videos
+composer config repositories.instasell vcs https://github.com/InstaSell/Magento-Extension
 
 # Install the extension
-composer require instavid/shoppable-videos
+composer require instasell/magento-extension
 ```
 
-### Enable Module
+### 🔧 **Enable Module**
 
 ```bash
 php bin/magento module:enable Instavid_ShoppableVideos
@@ -28,10 +38,9 @@ php bin/magento cache:flush
 2. Extract to `app/code/Instavid/ShoppableVideos/`
 3. Run the setup commands above
 
-## Quick Start
+## 🎯 Quick Start
 
 ### 1. Enable the Module
-
 ```bash
 php bin/magento module:enable Instavid_ShoppableVideos
 php bin/magento setup:upgrade
@@ -39,20 +48,19 @@ php bin/magento cache:flush
 ```
 
 ### 2. Add Widget to Your Store
-
-1. Navigate to Admin → Content → Widgets
-2. Click Add Widget
-3. Select Instavid Video Carousel
-4. Choose your Layout Update (e.g., Homepage)
-6. Save and test
+1. Go to **Admin → Content → Widgets**
+2. Click **Add Widget**
+3. Select **Instavid Video Carousel**
+4. Choose your **Layout Update** (e.g., Homepage)
+5. Configure your **Carousel Name**
+6. Save and test!
 
 ### 3. Configure Your Videos
-
 - Set up your video content in the Instavid dashboard
-- Use the same Carousel Name you configured in the widget
+- Use the same **Carousel Name** you configured in the widget
 - Your videos will automatically appear on your store
 
-## Configuration
+## 🔧 Configuration
 
 ### Widget Parameters
 
@@ -62,19 +70,19 @@ php bin/magento cache:flush
 
 ### System Configuration
 
-Navigate to Admin → Stores → Configuration → Instavid → Shoppable Videos to configure:
+Navigate to **Admin → Stores → Configuration → Instavid → Shoppable Videos** to configure:
 
 - API credentials
 - Default video settings
 - Performance options
 - Display preferences
 
-## Widget Usage
+## 📱 Widget Usage
 
 ### Available Widgets
 
 - **Instavid Video Carousel**: Main video carousel widget with product integration
-- Additional widgets are planned for future releases
+- More widgets coming soon!
 
 ### Placement Options
 
@@ -84,37 +92,42 @@ Navigate to Admin → Stores → Configuration → Instavid → Shoppable Videos
 - CMS pages
 - Any custom location
 
-## Support
+## 🆘 Support
 
 - **Email**: support@instasell.io
-- **Issues**: GitHub Issues
-- **Website**: https://instavid.co/
+- **Documentation**: [https://docs.instavid.com/magento](https://docs.instavid.com/magento)
+- **Issues**: [GitHub Issues](https://github.com/InstaSell/Magento-Extension/issues)
+- **Website**: [https://instavid.co/](https://instavid.co/)
 
-## Updates
+## 🔄 Updates
 
-Keep your extension up to date:
+Keep your extension up to date
 
 ```bash
 # Update the extension
-composer update instavid/shoppable-videos
+composer update instasell/magento-extension
 
 # Refresh Magento
 php bin/magento setup:upgrade
 php bin/magento cache:flush
 ```
 
-## Requirements
+## 📋 Requirements
 
 - **PHP**: 7.4 or higher
 - **Magento**: 2.4.3 or higher
 - **Framework**: 103.0.0 or higher
 
-## Contributing
+## 📄 License
 
-We welcome contributions. Please see our Contributing Guidelines for details.
+This extension is licensed under the MIT License. See the LICENSE file for details.
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 ---
 
-**Transform your Magento store with the power of shoppable videos.**
+**Transform your Magento store with the power of shoppable videos!** 🎥✨
 
-*Developed by the Instavid Team*
+*Built with ❤️ by the InstaSell Team*
