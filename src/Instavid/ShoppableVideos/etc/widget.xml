@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    <widget id="instavid_shoppablevideos_carousel" class="Instavid\ShoppableVideos\Block\Widget\Carousel">
+        <label translate="true">Instavid Video Carousel</label>
+        <description translate="true">Insert interactive video carousels anywhere on your site</description>
+        <parameters>
+            <parameter name="carousel_name" xsi:type="text" sort_order="10" visible="true" required="true">
+                <label translate="true">Carousel Name</label>
+                <description translate="true">Give your carousel a unique name (e.g., Homepage Hero, Category Videos)</description>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <!-- Widget Configuration -->
+        <instavid_widget>
+            <general>
+                <enabled>1</enabled>
+                <environment>development</environment> <!-- development, staging, production -->
+            </general>
+            <urls>
+                <development>
+                    <js_url>Instavid_ShoppableVideos::js/widget.js</js_url>
+                    <css_url>Instavid_ShoppableVideos::css/widget.css</css_url>
+                </development>
+                <staging>
+                    <js_url>Instavid_ShoppableVideos::js/widget.js</js_url>
+                    <css_url>Instavid_ShoppableVideos::css/widget.css</css_url>
+                </staging>
+                <production>
+                    <js_url>Instavid_ShoppableVideos::js/widget.js</js_url>
+                    <css_url>Instavid_ShoppableVideos::css/widget.css</css_url>
+                </production>
+            </urls>
+            <carousel>
+                <default_height>594</default_height>
+                <default_autoplay>1</default_autoplay>
+                <default_loop>1</default_loop>
+            </carousel>
+        </instavid_widget>
+    </default>
+</config>

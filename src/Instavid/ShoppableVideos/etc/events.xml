@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- File: app/code/Instavid/ShoppableVideos/etc/events.xml -->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <!-- Product save events - triggered from all areas (admin, frontend, API) -->
+    <event name="catalog_product_save_after">
+        <observer name="instavid_shoppablevideos_product_save_after" instance="Instavid\ShoppableVideos\Observer\ProductSaveAfter" />
+    </event>
+    
+    <!-- Product delete events - triggered from all areas -->
+    <event name="catalog_product_delete_after">
+        <observer name="instavid_shoppablevideos_product_delete_after" instance="Instavid\ShoppableVideos\Observer\ProductDeleteAfter" />
+    </event>
+    
+    <!-- Order placement events - triggered from frontend -->
+    <event name="sales_order_place_after">
+        <observer name="instavid_shoppablevideos_order_place_after" instance="Instavid\ShoppableVideos\Observer\OrderPlaceAfter" />
+    </event>
+    
+    <!-- Attribution capture - triggered from frontend -->
+    <event name="controller_action_predispatch">
+        <observer name="instavid_capture_attribution" instance="Instavid\ShoppableVideos\Observer\CaptureAttribution" />
+    </event>
+</config> 

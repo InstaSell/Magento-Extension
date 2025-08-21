@@ -1,0 +1,151 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="instavid" translate="label" sortOrder="200">
+            <label>Instavid</label>
+        </tab>
+        
+        <!-- Widget Configuration -->
+        <section id="instavid_widget" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Widget Configuration</label>
+            <tab>instavid</tab>
+            <resource>Instavid_ShoppableVideos::config</resource>
+            
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Settings</label>
+                <field id="enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Widgets</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>instavid_widget/general/enabled</config_path>
+                </field>
+                <field id="environment" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Environment</label>
+                    <source_model>Instavid\ShoppableVideos\Model\Config\Source\Environment</source_model>
+                    <config_path>instavid_widget/general/environment</config_path>
+                    <comment>Select the environment for asset loading (Development = Local, Staging = Staging server, Production = Live)</comment>
+                </field>
+            </group>
+            
+            <group id="urls" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Asset Configuration</label>
+                <field id="development_js_url" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Development JavaScript Path</label>
+                    <comment>Local development path for JavaScript files (e.g., Instavid_ShoppableVideos::js/widget.js)</comment>
+                    <config_path>instavid_widget/urls/development/js_url</config_path>
+                    <depends>
+                        <field id="environment">development</field>
+                    </depends>
+                </field>
+                <field id="development_css_url" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Development CSS Path</label>
+                    <comment>Local development path for CSS files (e.g., Instavid_ShoppableVideos::css/widget.css)</comment>
+                    <config_path>instavid_widget/urls/development/css_url</config_path>
+                    <depends>
+                        <field id="environment">development</field>
+                    </depends>
+                </field>
+                <field id="staging_js_url" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Staging JavaScript Path</label>
+                    <comment>Staging server path for JavaScript files</comment>
+                    <config_path>instavid_widget/urls/staging/js_url</config_path>
+                    <depends>
+                        <field id="environment">staging</field>
+                    </depends>
+                </field>
+                <field id="staging_css_url" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Staging CSS Path</label>
+                    <comment>Staging server path for CSS files</comment>
+                    <config_path>instavid_widget/urls/staging/css_url</config_path>
+                    <depends>
+                        <field id="environment">staging</field>
+                    </depends>
+                </field>
+                <field id="production_js_url" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Production JavaScript Path</label>
+                    <comment>Production server path for JavaScript files</comment>
+                    <config_path>instavid_widget/urls/production/js_url</config_path>
+                    <depends>
+                        <field id="environment">production</field>
+                    </depends>
+                </field>
+                <field id="production_css_url" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Production CSS Path</label>
+                    <comment>Production server path for CSS files</comment>
+                    <config_path>instavid_widget/urls/production/css_url</config_path>
+                    <depends>
+                        <field id="environment">production</field>
+                    </depends>
+                </field>
+            </group>
+            
+            <group id="carousel" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Carousel Widget Settings</label>
+                <field id="default_height" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Carousel Height (px)</label>
+                    <comment>Default height for carousel widgets in pixels</comment>
+                    <config_path>instavid_widget/carousel/default_height</config_path>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                </field>
+                <field id="default_autoplay" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Autoplay Setting</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>instavid_widget/carousel/default_autoplay</config_path>
+                </field>
+                <field id="default_loop" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Loop Setting</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>instavid_widget/carousel/default_loop</config_path>
+                </field>
+            </group>
+        </section>
+        
+        <!-- Webhook Configuration (Legacy) -->
+        <section id="instavid_webhook" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Webhook Settings (Legacy)</label>
+            <tab>instavid</tab>
+            <resource>Instavid_ShoppableVideos::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Configuration</label>
+                <field id="enabled" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Webhooks</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>instavid_webhook/general/enabled</config_path>
+                </field>
+                <field id="webhook_url" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Webhook URL</label>
+                    <comment>Your backend base URL (e.g., http://localhost:8080)</comment>
+                    <config_path>instavid_webhook/general/webhook_url</config_path>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="timeout" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Request Timeout (seconds)</label>
+                    <comment>Timeout for webhook requests in seconds (default: 30)</comment>
+                    <config_path>instavid_webhook/general/timeout</config_path>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="events" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Event Configuration</label>
+                <field id="product_save" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send Product Save Events</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>instavid_webhook/events/product_save</config_path>
+                </field>
+                <field id="product_delete" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send Product Delete Events</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>instavid_webhook/events/product_delete</config_path>
+                </field>
+                <field id="order_placed" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send Order Placed Events</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>instavid_webhook/events/order_placed</config_path>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

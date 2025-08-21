@@ -1,0 +1,55 @@
+{
+    "name": "instavid/shoppable-videos",
+    "description": "Professional shoppable video extension for Magento 2",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": "MIT",
+    "keywords": [
+        "magento2",
+        "magento",
+        "shoppable-videos",
+        "video-commerce",
+        "live-commerce",
+        "video-widgets",
+        "interactive-videos",
+        "video-carousel",
+        "ecommerce",
+        "magento-extension"
+    ],
+    "authors": [
+        {
+            "name": "Instavid Team",
+            "email": "support@instasell.io",
+            "homepage": "https://instavid.co/"
+        }
+    ],
+    "require": {
+        "php": "~7.4.0||~8.0.0||~8.1.0||~8.2.0",
+        "magento/framework": "~103.0.0||~104.0.0",
+        "magento/widget": "*",
+        "magento/checkout": "*",
+        "magento/customer": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Instavid\\ShoppableVideos\\": "src/Instavid/ShoppableVideos/"
+        }
+    },
+    "extra": {
+        "map": [
+            [
+                "src/Instavid/ShoppableVideos",
+                "app/code/Instavid/ShoppableVideos"
+            ]
+        ]
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "support": {
+        "email": "support@instasell.com",
+        "issues": "https://github.com/instavid/shoppable-videos/issues",
+        "wiki": "https://docs.instavid.com/magento",
+        "source": "https://github.com/instavid/shoppable-videos"
+    },
+    "homepage": "https://instavid.co/"
+} 

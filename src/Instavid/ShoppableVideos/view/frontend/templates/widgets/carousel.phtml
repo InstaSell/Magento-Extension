@@ -1,0 +1,73 @@
+<?php
+/** @var \Instavid\ShoppableVideos\Block\Widget\Carousel $block */
+$pageType = $block->getPageType();
+$carouselName = $block->getCarouselName();
+$jsConfig = $block->getJavaScriptConfig();
+$widgetId = $block->generateWidgetId('carousel');
+?>
+
+<?php if ($pageType === 'product' || $pageType === 'category'): ?>
+    <!-- Product/Category Page Video Display -->
+    <div id="instasell-live-short-videos" class="page-width"></div>
+    <script>
+        window.__INSTASELL_LIVE_CONFIG__ = window.__INSTASELL_LIVE_CONFIG__ || {};
+        __INSTASELL_LIVE_CONFIG__.pageType = "<?php echo $pageType; ?>";
+
+        <?php if ($pageType === 'product'): ?>
+            __INSTASELL_LIVE_CONFIG__.currentProductId = "<?php echo $block->getCurrentProductId(); ?>";
+        <?php elseif ($pageType === 'category'): ?>
+            __INSTASELL_LIVE_CONFIG__.currentCategoryId = "<?php echo $block->getCurrentCategoryId(); ?>";
+        <?php endif; ?>
+    </script>
+<?php else: ?>
+    <!-- Homepage and Other Pages - Dynamic Carousel Widget -->
+    <?php 
+    // Generate unique carousel ID based on carousel name
+    $carouselId = 'instasell-carousel-' . strtolower(str_replace(' ', '-', preg_replace('/[^a-zA-Z0-9\s]/', '', $carouselName)));
+    ?>
+    <div id="<?php echo $carouselId; ?>" 
+         data-carousel-name="<?php echo htmlspecialchars($carouselName); ?>" 
+         class="page-width">
+    </div>
+
+    <script>
+        window.__INSTASELL_LIVE_CONFIG__ = window.__INSTASELL_LIVE_CONFIG__ || {};
+        
+        __INSTASELL_LIVE_CONFIG__.carouselName = "<?php echo addslashes($carouselName); ?>";
+
+        if (!__INSTASELL_LIVE_CONFIG__.pageType) {
+            __INSTASELL_LIVE_CONFIG__.pageType = "home";
+            __INSTASELL_LIVE_CONFIG__.homeCarousels = __INSTASELL_LIVE_CONFIG__.homeCarousels || [];
+            
+            __INSTASELL_LIVE_CONFIG__.homeCarousels.push({
+                elementId: "<?php echo $carouselId; ?>",
+                name: __INSTASELL_LIVE_CONFIG__.carouselName || "<?php echo addslashes($carouselName); ?>"
+            });
+        }
+    </script>
+<?php endif; ?>
+
+<!-- Global script inclusion -->
+<script type="module" defer src="http://localhost:3003/dist/assets/index.js"></script>
+<script>
+    // Load CSS after initial page render
+    window.addEventListener('DOMContentLoaded', function() {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'http://localhost:3003/dist/assets/index.css';
+        document.body.appendChild(link);
+    });
+</script>
+<style>
+    #instasell-live-short-videos,
+    div[id^="instasell-carousel"] {
+        height: 594px;
+    }
+    @media (max-width: 600px) {
+        #instasell-live-short-videos,
+        div[id^="instasell-carousel"] { 
+            height: 470px; 
+        }
+    }
+</style>
+
