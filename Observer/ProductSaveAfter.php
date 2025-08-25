@@ -41,12 +41,6 @@ class ProductSaveAfter implements ObserverInterface
         $product = $observer->getEvent()->getProduct();
 
         try {
-            // Determine if this is a new product or update
-            $action = $product->isObjectNew() ? 'create' : 'update';
-
-            // Format product data for webhook
-            $productData = $this->webhookService->formatProductData($product);
-
             // Get valid store ID (avoid admin store 0)
             $storeId = $product->getStoreId();
             if ($storeId === 0) {
@@ -61,11 +55,14 @@ class ProductSaveAfter implements ObserverInterface
                 }
             }
             
-            // Send webhook
-            $this->webhookService->sendProductSync($productData, $action, $storeId);
-
-            // Log for debugging (keep existing logging but make it more concise)
-            $this->logger->info("[Instavid] Product {$action} webhook triggered for SKU: " . $product->getSku());
+            // Send webhook using the proper method based on whether it's new or existing
+            if ($product->isObjectNew()) {
+                $this->webhookService->sendProductCreated($product, $storeId);
+                $this->logger->info("[Instavid] Product create webhook triggered for SKU: " . $product->getSku());
+            } else {
+                $this->webhookService->sendProductUpdated($product, $storeId);
+                $this->logger->info("[Instavid] Product update webhook triggered for SKU: " . $product->getSku());
+            }
 
         } catch (\Exception $e) {
             $this->logger->error("[Instavid] Error in ProductSaveAfter observer: " . $e->getMessage());

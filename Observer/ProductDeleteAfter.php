@@ -41,16 +41,22 @@ class ProductDeleteAfter implements ObserverInterface
         $product = $observer->getEvent()->getProduct();
 
         try {
-            // Format minimal product data for deletion webhook
-            $productData = [
-                'id' => $product->getId(),
-                'sku' => $product->getSku(),
-                'name' => $product->getName(),
-                'store_id' => $product->getStoreId()
-            ];
+            // Get valid store ID (avoid admin store 0)
+            $storeId = $product->getStoreId();
+            if ($storeId === 0) {
+                // If admin store, get the first non-admin store
+                $storeManager = \Magento\Framework\App\ObjectManager::getInstance()->get(\Magento\Store\Model\StoreManagerInterface::class);
+                $stores = $storeManager->getStores();
+                foreach ($stores as $store) {
+                    if ($store->getId() > 0) {
+                        $storeId = $store->getId();
+                        break;
+                    }
+                }
+            }
 
-            // Send webhook
-            $this->webhookService->sendProductSync($productData, 'delete', $product->getStoreId());
+            // Send webhook using the proper method
+            $this->webhookService->sendProductDeleted($product->getId(), $storeId);
 
             // Log for debugging
             $this->logger->info("[Instavid] Product delete webhook triggered for SKU: " . $product->getSku());

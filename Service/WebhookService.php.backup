@@ -1,0 +1,641 @@
+<?php
+namespace Instavid\ShoppableVideos\Service;
+
+use Magento\Framework\HTTP\Client\CurlFactory;
+use Psr\Log\LoggerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\HTTP\Client\Curl;
+use Magento\Catalog\Model\Product;
+use Magento\Sales\Model\Order;
+use Magento\Framework\Exception\LocalizedException;
+
+/**
+ * Webhook Service for Instavid Shoppable Videos
+ * 
+ * Handles all webhook communications with the Instavid platform
+ * - Product synchronization (create, update, delete)
+ * - Order attribution tracking
+ * - Customer behavior analytics
+ * - Real-time inventory updates
+ */
+class WebhookService
+{
+    /**
+     * @var CurlFactory
+     */
+    protected $curlFactory;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    protected $scopeConfig;
+
+    /**
+     * @var Json
+     */
+    protected $jsonSerializer;
+
+    /**
+     * @var string
+     */
+    protected $webhookEndpoint;
+
+    /**
+     * @var string
+     */
+    protected $apiKey;
+
+    /**
+     * @var bool
+     */
+    protected $isEnabled;
+
+    /**
+     * @param CurlFactory $curlFactory
+     * @param LoggerInterface $logger
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Json $jsonSerializer
+     */
+    public function __construct(
+        CurlFactory $curlFactory,
+        LoggerInterface $logger,
+        ScopeConfigInterface $scopeConfig,
+        Json $jsonSerializer
+    ) {
+        $this->curlFactory = $curlFactory;
+        $this->logger = $logger;
+        $this->scopeConfig = $scopeConfig;
+        $this->jsonSerializer = $jsonSerializer;
+        
+        // Load configuration
+        $this->loadConfiguration();
+    }
+
+    /**
+     * Load webhook configuration from system config
+     */
+    protected function loadConfiguration()
+    {
+        $this->webhookEndpoint = $this->scopeConfig->getValue(
+            'instavid_webhook/general/endpoint_url',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        
+        $this->apiKey = $this->scopeConfig->getValue(
+            'instavid_webhook/general/api_key',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+        
+        $this->isEnabled = $this->scopeConfig->isSetFlag(
+            'instavid_webhook/general/enabled',
+            \Magento\Store\Model\ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Check if webhooks are enabled
+     *
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->isEnabled && !empty($this->webhookEndpoint) && !empty($this->apiKey);
+    }
+
+    /**
+     * Send webhook data to Instavid platform
+     *
+     * @param array $data
+     * @param string $eventType
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendWebhook(array $data, string $eventType, int $storeId = 0): bool
+    {
+        if (!$this->isEnabled()) {
+            $this->logger->info('[Instavid] Webhooks are disabled or not configured');
+            return false;
+        }
+
+        try {
+            $webhookData = [
+                'event_type' => $eventType,
+                'timestamp' => time(),
+                'store_id' => $storeId,
+                'data' => $data,
+                'platform' => 'magento2',
+                'version' => '1.0.0'
+            ];
+
+            $this->logger->info('[Instavid] Sending webhook: ' . $eventType, $webhookData);
+
+            $curl = $this->curlFactory->create();
+            $curl->addHeader('Content-Type', 'application/json');
+            $curl->addHeader('Authorization', 'Bearer ' . $this->apiKey);
+            $curl->addHeader('X-Instavid-Event', $eventType);
+            $curl->addHeader('X-Instavid-Store', $storeId);
+
+            $curl->post($this->webhookEndpoint, $this->jsonSerializer->serialize($webhookData));
+
+            $responseCode = $curl->getStatus();
+            $responseBody = $curl->getBody();
+
+            if ($responseCode >= 200 && $responseCode < 300) {
+                $this->logger->info('[Instavid] Webhook sent successfully: ' . $eventType, [
+                    'response_code' => $responseCode,
+                    'response_body' => $responseBody
+                ]);
+                return true;
+            } else {
+                $this->logger->error('[Instavid] Webhook failed: ' . $eventType, [
+                    'response_code' => $responseCode,
+                    'response_body' => $responseBody,
+                    'webhook_data' => $webhookData
+                ]);
+                return false;
+            }
+
+        } catch (\Exception $e) {
+            $this->logger->error('[Instavid] Webhook exception: ' . $e->getMessage(), [
+                'event_type' => $eventType,
+                'store_id' => $storeId,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return false;
+        }
+    }
+
+    /**
+     * Send product creation webhook
+     *
+     * @param Product $product
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendProductCreated(Product $product, int $storeId = 0): bool
+    {
+        $productData = $this->formatProductData($product);
+        return $this->sendWebhook($productData, 'product.created', $storeId);
+    }
+
+    /**
+     * Send product update webhook
+     *
+     * @param Product $product
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendProductUpdated(Product $product, int $storeId = 0): bool
+    {
+        $productData = $this->formatProductData($product);
+        return $this->sendWebhook($productData, 'product.updated', $storeId);
+    }
+
+    /**
+     * Send product deletion webhook
+     *
+     * @param int $productId
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendProductDeleted(int $productId, int $storeId = 0): bool
+    {
+        $productData = ['product_id' => $productId];
+        return $this->sendWebhook($productData, 'product.deleted', $storeId);
+    }
+
+    /**
+     * Send order placement webhook
+     *
+     * @param Order $order
+     * @param array $attributionData
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendOrderPlaced(Order $order, array $attributionData = [], int $storeId = 0): bool
+    {
+        $orderData = $this->formatOrderData($order, $attributionData);
+        return $this->sendWebhook($orderData, 'order.placed', $storeId);
+    }
+
+    /**
+     * Send customer registration webhook
+     *
+     * @param array $customerData
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendCustomerRegistered(array $customerData, int $storeId = 0): bool
+    {
+        return $this->sendWebhook($customerData, 'customer.registered', $storeId);
+    }
+
+    /**
+     * Send customer login webhook
+     *
+     * @param array $customerData
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendCustomerLogin(array $customerData, int $storeId = 0): bool
+    {
+        return $this->sendWebhook($customerData, 'customer.login', $storeId);
+    }
+
+    /**
+     * Send cart update webhook
+     *
+     * @param array $cartData
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendCartUpdated(array $cartData, int $storeId = 0): bool
+    {
+        return $this->sendWebhook($cartData, 'cart.updated', $storeId);
+    }
+
+    /**
+     * Send video view webhook
+     *
+     * @param array $videoData
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendVideoViewed(array $videoData, int $storeId = 0): bool
+    {
+        return $this->sendWebhook($videoData, 'video.viewed', $storeId);
+    }
+
+    /**
+     * Send video interaction webhook
+     *
+     * @param array $interactionData
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendVideoInteraction(array $interactionData, int $storeId = 0): bool
+    {
+        return $this->sendWebhook($interactionData, 'video.interaction', $storeId);
+    }
+
+    /**
+     * Format product data for webhook
+     *
+     * @param Product $product
+     * @return array
+     */
+    public function formatProductData(Product $product): array
+    {
+        return [
+            'product_id' => $product->getId(),
+            'sku' => $product->getSku(),
+            'name' => $product->getName(),
+            'description' => $product->getDescription(),
+            'short_description' => $product->getShortDescription(),
+            'price' => $product->getPrice(),
+            'special_price' => $product->getSpecialPrice(),
+            'cost' => $product->getCost(),
+            'weight' => $product->getWeight(),
+            'status' => $product->getStatus(),
+            'visibility' => $product->getVisibility(),
+            'type_id' => $product->getTypeId(),
+            'attribute_set_id' => $product->getAttributeSetId(),
+            'created_at' => $product->getCreatedAt(),
+            'updated_at' => $product->getUpdatedAt(),
+            'url_key' => $product->getUrlKey(),
+            'meta_title' => $product->getMetaTitle(),
+            'meta_description' => $product->getMetaDescription(),
+            'meta_keyword' => $product->getMetaKeyword(),
+            'stock_status' => $product->getStockStatus(),
+            'qty' => $product->getQty(),
+            'is_in_stock' => $product->getIsInStock(),
+            'media_gallery' => $this->getProductMediaGallery($product),
+            'categories' => $this->getProductCategories($product),
+            'related_products' => $this->getRelatedProducts($product),
+            'cross_sell_products' => $this->getCrossSellProducts($product),
+            'up_sell_products' => $this->getUpSellProducts($product)
+        ];
+    }
+
+    /**
+     * Send product sync webhook (legacy method for backward compatibility)
+     *
+     * @param array $productData
+     * @param string $action
+     * @param int $storeId
+     * @return bool
+     */
+    public function sendProductSync(array $productData, string $action, int $storeId = 0): bool
+    {
+        $eventType = 'product.' . $action;
+        return $this->sendWebhook($productData, $eventType, $storeId);
+    }
+
+    /**
+     * Format order data for webhook
+     *
+     * @param Order $order
+     * @param array $attributionData
+     * @return array
+     */
+    protected function formatOrderData(Order $order, array $attributionData = []): array
+    {
+        $orderData = [
+            'order_id' => $order->getIncrementId(),
+            'entity_id' => $order->getId(),
+            'customer_id' => $order->getCustomerId(),
+            'customer_email' => $order->getCustomerEmail(),
+            'customer_firstname' => $order->getCustomerFirstname(),
+            'customer_lastname' => $order->getCustomerLastname(),
+            'customer_group_id' => $order->getCustomerGroupId(),
+            'store_id' => $order->getStoreId(),
+            'website_id' => $order->getWebsiteId(),
+            'grand_total' => $order->getGrandTotal(),
+            'subtotal' => $order->getSubtotal(),
+            'shipping_amount' => $order->getShippingAmount(),
+            'tax_amount' => $order->getTaxAmount(),
+            'discount_amount' => $order->getDiscountAmount(),
+            'currency_code' => $order->getOrderCurrencyCode(),
+            'order_status' => $order->getStatus(),
+            'payment_method' => $order->getPayment()->getMethod(),
+            'shipping_method' => $order->getShippingMethod(),
+            'created_at' => $order->getCreatedAt(),
+            'updated_at' => $order->getUpdatedAt(),
+            'items' => $this->formatOrderItems($order),
+            'billing_address' => $this->formatAddress($order->getBillingAddress()),
+            'shipping_address' => $this->formatAddress($order->getShippingAddress()),
+            'attribution' => $attributionData
+        ];
+
+        return $orderData;
+    }
+
+    /**
+     * Get product media gallery
+     *
+     * @param Product $product
+     * @return array
+     */
+    protected function getProductMediaGallery(Product $product): array
+    {
+        $mediaGallery = [];
+        try {
+            $mediaGalleryEntries = $product->getMediaGalleryEntries();
+            if ($mediaGalleryEntries) {
+                foreach ($mediaGalleryEntries as $entry) {
+                    $mediaGallery[] = [
+                        'id' => $entry->getId(),
+                        'file' => $entry->getFile(),
+                        'media_type' => $entry->getMediaType(),
+                        'label' => $entry->getLabel(),
+                        'position' => $entry->getPosition(),
+                        'types' => $entry->getTypes()
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('[Instavid] Error getting product media gallery: ' . $e->getMessage());
+        }
+        return $mediaGallery;
+    }
+
+    /**
+     * Get product categories
+     *
+     * @param Product $product
+     * @return array
+     */
+    protected function getProductCategories(Product $product): array
+    {
+        $categories = [];
+        try {
+            $categoryIds = $product->getCategoryIds();
+            if ($categoryIds) {
+                $categories = array_map('intval', $categoryIds);
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('[Instavid] Error getting product categories: ' . $e->getMessage());
+        }
+        return $categories;
+    }
+
+    /**
+     * Get related products
+     *
+     * @param Product $product
+     * @return array
+     */
+    protected function getRelatedProducts(Product $product): array
+    {
+        $relatedProducts = [];
+        try {
+            $relatedProductIds = $product->getRelatedProductIds();
+            if ($relatedProductIds) {
+                $relatedProducts = array_map('intval', $relatedProductIds);
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('[Instavid] Error getting related products: ' . $e->getMessage());
+        }
+        return $relatedProducts;
+    }
+
+    /**
+     * Get cross-sell products
+     *
+     * @param Product $product
+     * @return array
+     */
+    protected function getCrossSellProducts(Product $product): array
+    {
+        $crossSellProducts = [];
+        try {
+            $crossSellProductIds = $product->getCrossSellProductIds();
+            if ($crossSellProductIds) {
+                $crossSellProducts = array_map('intval', $crossSellProductIds);
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('[Instavid] Error getting cross-sell products: ' . $e->getMessage());
+        }
+        return $crossSellProducts;
+    }
+
+    /**
+     * Get up-sell products
+     *
+     * @param Product $product
+     * @return array
+     */
+    protected function getUpSellProducts(Product $product): array
+    {
+        $upSellProducts = [];
+        try {
+            $upSellProductIds = $product->getUpSellProductIds();
+            if ($upSellProductIds) {
+                $upSellProducts = array_map('intval', $upSellProductIds);
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('[Instavid] Error getting up-sell products: ' . $e->getMessage());
+        }
+        return $upSellProducts;
+    }
+
+    /**
+     * Format order items
+     *
+     * @param Order $order
+     * @return array
+     */
+    protected function formatOrderItems(Order $order): array
+    {
+        $items = [];
+        try {
+            foreach ($order->getAllItems() as $item) {
+                $items[] = [
+                    'item_id' => $item->getItemId(),
+                    'product_id' => $item->getProductId(),
+                    'sku' => $item->getSku(),
+                    'name' => $item->getName(),
+                    'qty_ordered' => $item->getQtyOrdered(),
+                    'qty_shipped' => $item->getQtyShipped(),
+                    'qty_invoiced' => $item->getQtyInvoiced(),
+                    'qty_refunded' => $item->getQtyRefunded(),
+                    'price' => $item->getPrice(),
+                    'original_price' => $item->getOriginalPrice(),
+                    'row_total' => $item->getRowTotal(),
+                    'row_total_incl_tax' => $item->getRowTotalInclTax(),
+                    'tax_amount' => $item->getTaxAmount(),
+                    'discount_amount' => $item->getDiscountAmount(),
+                    'product_options' => $item->getProductOptions()
+                ];
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('[Instavid] Error formatting order items: ' . $e->getMessage());
+        }
+        return $items;
+    }
+
+    /**
+     * Format address data
+     *
+     * @param \Magento\Sales\Model\Order\Address $address
+     * @return array
+     */
+    protected function formatAddress($address): array
+    {
+        if (!$address) {
+            return [];
+        }
+
+        return [
+            'id' => $address->getId(),
+            'address_type' => $address->getAddressType(),
+            'firstname' => $address->getFirstname(),
+            'lastname' => $address->getLastname(),
+            'company' => $address->getCompany(),
+            'street' => $address->getStreet(),
+            'city' => $address->getCity(),
+            'region' => $address->getRegion(),
+            'region_id' => $address->getRegionId(),
+            'postcode' => $address->getPostcode(),
+            'country_id' => $address->getCountryId(),
+            'telephone' => $address->getTelephone(),
+            'fax' => $address->getFax()
+        ];
+    }
+
+    /**
+     * Test webhook connectivity
+     *
+     * @return array
+     */
+    public function testConnectivity(): array
+    {
+        if (!$this->isEnabled()) {
+            return [
+                'success' => false,
+                'message' => 'Webhooks are disabled or not configured',
+                'config' => [
+                    'enabled' => $this->isEnabled,
+                    'endpoint' => $this->webhookEndpoint,
+                    'has_api_key' => !empty($this->apiKey)
+                ]
+            ];
+        }
+
+        try {
+            $testData = [
+                'test' => true,
+                'timestamp' => time(),
+                'message' => 'Connectivity test from Magento 2'
+            ];
+
+            $curl = $this->curlFactory->create();
+            $curl->addHeader('Content-Type', 'application/json');
+            $curl->addHeader('Authorization', 'Bearer ' . $this->apiKey);
+            $curl->addHeader('X-Instavid-Event', 'test.connectivity');
+
+            $curl->post($this->webhookEndpoint, $this->jsonSerializer->serialize($testData));
+
+            $responseCode = $curl->getStatus();
+            $responseBody = $curl->getBody();
+
+            if ($responseCode >= 200 && $responseCode < 300) {
+                return [
+                    'success' => true,
+                    'message' => 'Webhook connectivity test successful',
+                    'response_code' => $responseCode,
+                    'response_body' => $responseBody,
+                    'config' => [
+                        'endpoint' => $this->webhookEndpoint,
+                        'has_api_key' => !empty($this->apiKey)
+                    ]
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Webhook connectivity test failed',
+                    'response_code' => $responseCode,
+                    'response_body' => $responseBody,
+                    'config' => [
+                        'endpoint' => $this->webhookEndpoint,
+                        'has_api_key' => !empty($this->apiKey)
+                    ]
+                ];
+            }
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Webhook connectivity test exception: ' . $e->getMessage(),
+                'exception' => $e->getMessage(),
+                'config' => [
+                    'endpoint' => $this->webhookEndpoint,
+                    'has_api_key' => !empty($this->apiKey)
+                ]
+            ];
+        }
+    }
+
+    /**
+     * Get webhook configuration status
+     *
+     * @return array
+     */
+    public function getConfigurationStatus(): array
+    {
+        return [
+            'enabled' => $this->isEnabled,
+            'endpoint_configured' => !empty($this->webhookEndpoint),
+            'api_key_configured' => !empty($this->apiKey),
+            'endpoint_url' => $this->webhookEndpoint,
+            'status' => $this->isEnabled() ? 'ready' : 'not_configured'
+        ];
+    }
+} 

@@ -27,5 +27,19 @@
                 <default_loop>1</default_loop>
             </carousel>
         </instavid_widget>
+        
+        <!-- Webhook Configuration -->
+        <instavid_webhook>
+            <general>
+                <enabled>1</enabled>
+                <webhook_url>http://192.168.1.24:8080</webhook_url>
+                <timeout>30</timeout>
+            </general>
+            <events>
+                <product_save>1</product_save>
+                <product_delete>1</product_delete>
+                <order_placed>0</order_placed>
+            </events>
+        </instavid_webhook>
     </default>
 </config>
